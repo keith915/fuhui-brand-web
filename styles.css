@@ -204,9 +204,6 @@ ul { margin: 0; padding: 0; }
 }
 .text-link:hover { gap: 22px; color: var(--accent); border-color: var(--accent); }
 
-.note { font-size: 11px; color: var(--ink-soft); opacity: .85; }
-
-
 /* ---------- 01 hero = 运营数据 ---------- */
 .hero {
   position: relative;
@@ -362,17 +359,6 @@ html[data-lang="en"] .hero__lead { font-size: clamp(28px, 2.55vw, 40px); }
   font-variant-numeric: tabular-nums;
 }
 .figure__unit { font-size: 11px; color: var(--ink-soft); letter-spacing: .06em; }
-
-/* section index chip */
-.sec-index {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 10px;
-  letter-spacing: .18em;
-  color: var(--ink-soft);
-}
-.sec-index b { color: var(--ink); font-weight: 600; }
 
 /* ---------- 03 pinned chapter ---------- */
 .chapter { position: relative; height: 480vh; background: var(--dark); color: #fff; }
@@ -618,7 +604,6 @@ html.motion-static .chapter__rail { display: none; }
 .news-list__kind { font-size: 11px; letter-spacing: .14em; color: var(--accent); }
 .news-list h3 { font-size: clamp(18px, 2vw, 26px); font-weight: 500; letter-spacing: -.02em; margin-bottom: 8px; }
 .news-list p { font-size: 13px; color: var(--ink-soft); }
-.news__note { font-size: 11px; color: var(--ink-soft); margin-top: 26px; }
 
 /* ---------- 06 contact + footer ---------- */
 .contact {
@@ -820,9 +805,7 @@ html.motion-static .chapter__rail { display: none; }
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
-  .hero__visual { clip-path: inset(0 0 0 0); }
   .foot__wordmark { transform: none; }
-  .hero__visual img { transform: none; }
   .reveal__bg, .reveal img { clip-path: inset(0 0 0 0); }
   .reveal img { transform: none; }
 }

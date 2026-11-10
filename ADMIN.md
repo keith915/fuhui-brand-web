@@ -77,11 +77,11 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 
 若不用 Docker：`npm ci && npm run build:admin`，用 systemd / pm2 守护 `node server/src/index.ts`，Nginx 配置同上（把文件路径指到仓库目录）。
 
-## 五（补充）、宝塔面板
+## 六、宝塔面板（可选）
 
 宝塔部署的完整步骤见 [deploy/baota.md](deploy/baota.md)：Node 项目 + PM2 + Nginx 反代（推荐），或 Nginx 直接托管 `dist`，以及计划任务备份、Node 版本要求（≥22.6，推荐 24）和常见问题。
 
-## 六、备份
+## 七、备份
 
 `deploy/backup.sh` 用 `sqlite3 .backup` 备份数据库并打包上传图片，保留最近 14 份。建议每天 cron：
 
@@ -91,7 +91,7 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 
 恢复：停止服务 → 用备份覆盖 `data/app.db` → 解压 uploads → 启动 → 在后台发布一次。
 
-## 七、安全须知
+## 八、安全须知
 
 - 所有写接口要求登录会话 + CSRF 头；登录 5 次/分钟/IP 限流。
 - 密码用 scrypt 加盐存储；会话 Cookie 为 httpOnly + SameSite=Lax，生产环境需 HTTPS 并把 `FH_SECURE_COOKIE=1`。
@@ -99,7 +99,7 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 - 内容渲染默认转义，仅放行 br/b/strong/em。
 - 不要把 `data/`、`.env` 提交到公开仓库；`/admin` 已加 `noindex`。
 
-## 八、常见问题
+## 九、常见问题
 
 **改了内容官网没变化？** 需要点「立即发布」。
 **英文站显示中文？** 该字段英文为空，属于预期回退。
@@ -110,7 +110,7 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 node -e "const{openDb}=await import('./server/src/db/index.ts');const{hashPassword}=await import('./server/src/lib/auth.ts');const db=openDb('data/app.db');const{salt,hash}=hashPassword('新密码');db.prepare('UPDATE users SET pass_hash=?,salt=? WHERE username=?').run(hash,salt,'admin');console.log('ok')"
 ```
 
-## 九、上线前检查清单
+## 十、上线前检查清单
 
 - [ ] 替换 canonical / og:url / og:image 的 example.com
 - [ ] 首屏四个数字与 DATA-SOURCES.md 口径复核，来源与统计时点已填

@@ -2,7 +2,7 @@ let csrfToken = '';
 
 export type User = { id: number; username: string; role: 'admin' | 'editor' };
 
-export function setCsrf(token: string) {
+function setCsrf(token: string) {
   csrfToken = token || '';
 }
 

@@ -34,6 +34,3 @@ export function sanitizeHtml(value) {
   return out;
 }
 
-export function plainText(value) {
-  return escapeHtml(String(value == null ? '' : value).replace(/<[^>]*>/g, ''));
-}

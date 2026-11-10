@@ -256,10 +256,3 @@ function validateRefs(outDir, cssFile) {
   return missing;
 }
 
-export function siteVersion(outDir) {
-  try {
-    return contentHash(path.join(outDir, 'index.html'));
-  } catch {
-    return null;
-  }
-}
