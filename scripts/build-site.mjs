@@ -1,12 +1,21 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { openDb } from '../server/src/db/index.ts';
 import { buildSite } from '../server/src/lib/build.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = process.argv[2] || path.join(ROOT, 'dist');
-const db = openDb(path.join(ROOT, 'data', 'app.db'));
+const dbPath = path.join(ROOT, 'data', 'app.db');
+
+/* 全新检出（CI / 首次部署）没有 data/app.db：先用 site 源文件播种，避免构建出空页面 */
+if (!fs.existsSync(dbPath)) {
+  console.log('[build-site] 未找到 ' + dbPath + '，先执行 seed-from-site');
+  execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'seed-from-site.mjs')], { stdio: 'inherit' });
+}
+
+const db = openDb(dbPath);
 
 fs.rmSync(outDir, { recursive: true, force: true });
 const result = buildSite(db, {
