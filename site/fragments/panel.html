@@ -1,0 +1,13 @@
+          <article class="panel{{active}}" data-panel="{{index}}" style="--i:{{index}}">
+            <div class="panel__media">
+              <img src="{{image}}"{{srcset}} sizes="{{sizes}}" width="{{width}}" height="{{height}}"{{loading}} alt="{{alt}}" data-i18n-alt="alt.panel{{id}}">
+            </div>
+            <div class="panel__scrim" aria-hidden="true"></div>
+            <div class="panel__content shell">
+              <p class="panel__index"><b>{{indexLabel}}</b> <span>/ {{total}}</span></p>
+              <p class="panel__kicker" data-i18n-html="p{{id}}.kicker">{{kicker}}</p>
+              <h2 class="panel__title" data-i18n-html="p{{id}}.title">{{title}}</h2>
+              <p class="panel__desc" data-i18n="p{{id}}.desc">{{desc}}</p>
+              <a class="panel__link" href="#contact"><span data-i18n="panel.cta">{{cta}}</span> <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>

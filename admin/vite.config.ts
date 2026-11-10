@@ -1,0 +1,22 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+
+const adminRoot = fileURLToPath(new URL('.', import.meta.url));
+
+export default defineConfig({
+  root: adminRoot,
+  base: '/admin/',
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': 'http://127.0.0.1:8787',
+      '/media': 'http://127.0.0.1:8787'
+    }
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  }
+});

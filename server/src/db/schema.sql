@@ -1,0 +1,121 @@
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version TEXT PRIMARY KEY,
+  applied_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  pass_hash TEXT NOT NULL,
+  salt TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin', 'editor')),
+  disabled INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  csrf TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  ip TEXT,
+  ua TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+
+CREATE TABLE IF NOT EXISTS i18n_blocks (
+  key TEXT PRIMARY KEY,
+  zh TEXT NOT NULL DEFAULT '',
+  en TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'plain',
+  grp TEXT NOT NULL DEFAULT 'misc',
+  label TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_blocks_grp ON i18n_blocks(grp);
+
+CREATE TABLE IF NOT EXISTS metrics (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sort INTEGER NOT NULL DEFAULT 0,
+  label_zh TEXT NOT NULL DEFAULT '',
+  label_en TEXT NOT NULL DEFAULT '',
+  value_zh TEXT NOT NULL DEFAULT '',
+  value_en TEXT NOT NULL DEFAULT '',
+  unit_zh TEXT NOT NULL DEFAULT '',
+  unit_en TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT '',
+  period TEXT NOT NULL DEFAULT '',
+  visible INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS panels (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sort INTEGER NOT NULL DEFAULT 0,
+  kicker_zh TEXT NOT NULL DEFAULT '',
+  kicker_en TEXT NOT NULL DEFAULT '',
+  title_zh TEXT NOT NULL DEFAULT '',
+  title_en TEXT NOT NULL DEFAULT '',
+  desc_zh TEXT NOT NULL DEFAULT '',
+  desc_en TEXT NOT NULL DEFAULT '',
+  image TEXT NOT NULL DEFAULT '',
+  image_m TEXT NOT NULL DEFAULT '',
+  img_w INTEGER NOT NULL DEFAULT 0,
+  img_h INTEGER NOT NULL DEFAULT 0,
+  alt_zh TEXT NOT NULL DEFAULT '',
+  alt_en TEXT NOT NULL DEFAULT '',
+  published INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS news (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  date TEXT NOT NULL,
+  kind_zh TEXT NOT NULL DEFAULT '新闻',
+  kind_en TEXT NOT NULL DEFAULT 'News',
+  title_zh TEXT NOT NULL DEFAULT '',
+  title_en TEXT NOT NULL DEFAULT '',
+  summary_zh TEXT NOT NULL DEFAULT '',
+  summary_en TEXT NOT NULL DEFAULT '',
+  published INTEGER NOT NULL DEFAULT 1,
+  sort INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS media (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  filename TEXT NOT NULL UNIQUE,
+  orig_name TEXT NOT NULL DEFAULT '',
+  mime TEXT NOT NULL DEFAULT '',
+  width INTEGER NOT NULL DEFAULT 0,
+  height INTEGER NOT NULL DEFAULT 0,
+  bytes INTEGER NOT NULL DEFAULT 0,
+  variants TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inquiries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  company TEXT NOT NULL DEFAULT '',
+  message TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'new',
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS content_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payload TEXT NOT NULL,
+  label TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS publish_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  started_at TEXT NOT NULL,
+  finished_at TEXT,
+  status TEXT NOT NULL,
+  build_ms INTEGER,
+  error TEXT,
+  release_dir TEXT
+);

@@ -1,0 +1,23 @@
+node_modules/
+dist/
+admin/dist/
+data/
+*.db
+*.db-wal
+*.db-shm
+server/test/tmp/
+.verify-out/
+.tmp/
+.probe*
+backups/
+.env
+
+# 本地设计/验证工作区（截图、审计日志、参考图、临时页面），不进仓库
+.preview/
+.verify-page.html
+
+# 本机 Agent 工具配置，不属于站点代码
+.agents/
+.claude/
+.taste-skill/
+
