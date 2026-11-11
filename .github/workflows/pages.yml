@@ -1,9 +1,10 @@
 name: Deploy site to GitHub Pages
 
+# 两种用法二选一：
+# 1) 分支模式（后台发布自动同步）：Pages Source 设为 gh-pages 分支，本工作流手动运行即可
+# 2) Actions 模式：Pages Source 设为 GitHub Actions，手动运行本工作流（内容只来自仓库）
 on:
   workflow_dispatch:
-  push:
-    branches: [master]
 
 permissions:
   contents: read

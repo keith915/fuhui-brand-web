@@ -35,7 +35,13 @@ export default function Dashboard() {
     setPublishing(true);
     try {
       const res = await api.post('/publish', { label: '后台发布' });
-      message.success('发布成功，用时 ' + res.buildMs + 'ms');
+      if (res.pages && res.pages.ok) {
+        message.success('发布成功，用时 ' + res.buildMs + 'ms，已同步 GitHub Pages');
+      } else if (res.pages && res.pages.ok === false) {
+        message.warning('官网已更新，但 GitHub Pages 推送失败：' + res.pages.error);
+      } else {
+        message.success('发布成功，用时 ' + res.buildMs + 'ms');
+      }
       await load();
     } catch (err: any) {
       message.error('发布失败：' + err.message);
@@ -80,8 +86,16 @@ export default function Dashboard() {
           <Descriptions.Item label="耗时">
             {last?.build_ms != null ? last.build_ms + ' ms' : '-'}
           </Descriptions.Item>
+          <Descriptions.Item label="GitHub Pages">
+            {last?.pages_status === 'ok'
+              ? <Tag color="green">已同步</Tag>
+              : last?.pages_status === 'failed'
+                ? <Tag color="red">失败</Tag>
+                : '-'}
+          </Descriptions.Item>
         </Descriptions>
         {last?.error ? <Typography.Text type="danger">错误：{last.error}</Typography.Text> : null}
+        {last?.pages_error ? <Typography.Paragraph type="danger" style={{ marginBottom: 0 }}>Pages 推送：{last.pages_error}</Typography.Paragraph> : null}
       </Card>
 
       <Card title="发布历史">
@@ -95,6 +109,12 @@ export default function Dashboard() {
             { title: '开始时间', dataIndex: 'started_at', render: (v: string) => new Date(v).toLocaleString('zh-CN') },
             { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={STATUS[v]?.color}>{STATUS[v]?.text || v}</Tag> },
             { title: '耗时', dataIndex: 'build_ms', render: (v: number) => (v != null ? v + ' ms' : '-') },
+            {
+              title: 'Pages',
+              dataIndex: 'pages_status',
+              width: 80,
+              render: (v: string) => (v === 'ok' ? <Tag color="green">已同步</Tag> : v === 'failed' ? <Tag color="red">失败</Tag> : '-')
+            },
             { title: '错误', dataIndex: 'error', ellipsis: true }
           ]}
         />

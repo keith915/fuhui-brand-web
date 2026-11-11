@@ -10,6 +10,10 @@ services:
       FH_SECURE_COOKIE: "1"
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?请在 .env 中设置 ADMIN_PASSWORD}
+      FH_PAGES_DEPLOY: ${FH_PAGES_DEPLOY:-0}
+      FH_PAGES_TOKEN: ${FH_PAGES_TOKEN:-}
+      FH_PAGES_REPO: ${FH_PAGES_REPO:-}
+      FH_PAGES_BRANCH: ${FH_PAGES_BRANCH:-gh-pages}
     volumes:
       - ../data:/app/data
       - ../dist:/app/dist

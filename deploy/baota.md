@@ -49,6 +49,11 @@ PORT=8787
 HOST=127.0.0.1
 FH_SECURE_COOKIE=1
 ADMIN_PASSWORD=换成一个强密码
+
+# 可选：发布后自动同步到 GitHub Pages（详见 ADMIN.md 第十一节）
+# FH_PAGES_DEPLOY=1
+# FH_PAGES_TOKEN=ghp_xxx
+# FH_PAGES_REPO=owner/repo
 ```
 
 然后在站点设置里：

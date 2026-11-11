@@ -5,6 +5,13 @@ import { DatabaseSync } from 'node:sqlite';
 
 const schemaFile = path.join(path.dirname(fileURLToPath(import.meta.url)), 'schema.sql');
 
+function ensureColumns(db, table, columns) {
+  const have = new Set(db.prepare('PRAGMA table_info(' + table + ')').all().map((c) => c.name));
+  for (const [name, type] of columns) {
+    if (!have.has(name)) db.exec('ALTER TABLE ' + table + ' ADD COLUMN ' + name + ' ' + type);
+  }
+}
+
 export function openDb(dbPath) {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
@@ -12,6 +19,11 @@ export function openDb(dbPath) {
   db.exec('PRAGMA foreign_keys = ON;');
   db.exec('PRAGMA busy_timeout = 5000;');
   db.exec(fs.readFileSync(schemaFile, 'utf8'));
+  ensureColumns(db, 'publish_log', [
+    ['pages_status', 'TEXT'],
+    ['pages_error', 'TEXT'],
+    ['pages_commit', 'TEXT']
+  ]);
   const row = db.prepare('SELECT version FROM schema_migrations WHERE version = ?').get('001');
   if (!row) {
     db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run('001', new Date().toISOString());

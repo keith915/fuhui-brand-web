@@ -126,17 +126,45 @@ node -e "const{openDb}=await import('./server/src/db/index.ts');const{hashPasswo
 
 ### GitHub Pages
 
-仓库内置工作流 `.github/workflows/pages.yml`：推送 master 或手动 Run workflow 时，在 Ubuntu 上 `npm ci --omit=dev` 后运行 `node scripts/build-site.mjs`（自动从 `site/` 播种临时库）产出 `dist`，再发布到 Pages。
+Pages 有两种模式，**二选一**（改了 Source 后另一种立即失效）：
+
+| 模式 | Source 设置 | 内容来源 | 适合 |
+|---|---|---|---|
+| 分支模式 ⭐ | Deploy from a branch → `gh-pages` / (root) | 后台发布时推上去的 `dist` | 内容主要在后台改 |
+| Actions 模式 | GitHub Actions | 仓库里的 `site/` 源文件 | 只做预览/备份，不常改内容 |
+
+两种模式都要求：仓库公开，或账户为 GitHub Pro/Team（私有仓库的 Pages 需要付费计划）。访问地址为 `https://<owner>.github.io/fuhui-brand-web/`，资源全部使用相对路径，子路径下无需改动。
+
+#### 分支模式：后台发布 → 自动同步（推荐）
+
+在服务器 `.env`（或 docker-compose 的环境变量）里加：
+
+```bash
+FH_PAGES_DEPLOY=1
+FH_PAGES_TOKEN=ghp_xxx            # 需要 repo 权限（Fine-grained: Contents Read and write）
+FH_PAGES_REPO=keith915/fuhui-brand-web
+FH_PAGES_BRANCH=gh-pages          # 可省略，默认就是这个
+```
+
+设置后，每次「立即发布」在写 `dist` 成功后，会把这批文件提交到 `gh-pages` 分支（强制覆盖，带 `.nojekyll`），Pages 随后自动重建。后台「概览与发布」卡片会显示「GitHub Pages：已同步/失败」，失败信息写入发布记录，**不会影响本机官网发布成功**。
 
 启用步骤：
 
-1. 仓库转为公开，或账户升级到 GitHub Pro/Team（私有仓库启用 Pages 需要付费计划）
-2. Settings → Pages → Build and deployment → Source 选 **GitHub Actions**
-3. 推一次 master，在 Actions 页确认 "Deploy site to GitHub Pages" 成功
+1. 仓库公开或升级 Pro/Team
+2. Settings → Pages → Source 选 **Deploy from a branch**，分支选 `gh-pages`，目录 `/(root)`
+3. 在后台点一次「立即发布」，确认出现「已同步」，再打开 Pages 地址核对内容
 
-访问地址为 `https://<owner>.github.io/fuhui-brand-web/`。站点资源全部使用相对路径，部署在子路径下无需改动。
+Token 只放在服务器环境变量里，不要提交进仓库；服务器需要能用 `git`（Docker 镜像已包含，宝塔等裸机部署先确认 `git --version`）。若 `gh-pages` 分支有保护规则，需要允许强制推送。
+
+#### Actions 模式（内容滞后于后台）
+
+手动触发 `.github/workflows/pages.yml`：在 Ubuntu 上 `npm ci --omit=dev`，用 `node scripts/build-site.mjs` 从 `site/` 播种临时库产出 `dist` 并发布。适合只验证/备份静态站点，或后台暂时不上线时用。
 
 注意：
+- 分支模式下 Pages 内容以最近一次后台发布为准；Actions 模式下内容来自仓库，后台改动不会同步
+- 仓库转公开前，先移除 `scripts/seed-from-site.mjs` 里的兜底管理员密码
+- `*.github.io` 在国内访问不稳定，面向本地客户建议绑定自有域名或直接用 VPS 直出
+- 域名确定后替换 canonical / og:url / og:image 中的 example.com
 
 - Pages 上的内容来自仓库里的 `site/` 源文件，**后台编辑并发布的内容不会同步过去**；要保持一致，需后台发布后再把 `dist` 推到 `gh-pages` 分支，或改用 Cloudflare Workers 并让发布流程直传产物
 - 仓库转公开前，先移除 `scripts/seed-from-site.mjs` 里的兜底管理员密码

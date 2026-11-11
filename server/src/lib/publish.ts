@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { buildSite, copyDir } from './build.ts';
+import { deployToPages, pagesConfigFromEnv } from './pages.ts';
 import { nowIso, tx } from '../db/index.ts';
 
 function stamp() {
@@ -121,9 +122,23 @@ export function createPublisher(db, paths) {
         copyDir(tmp, paths.distDir);
       });
       pruneReleases(paths.releasesDir);
-      db.prepare('UPDATE publish_log SET finished_at = ?, status = ?, build_ms = ?, release_dir = ? WHERE id = ?')
-        .run(nowIso(), 'ok', Date.now() - t0, hadDist ? releaseDir : '', logId);
-      return { ok: true, logId, snapshotId, buildMs: Date.now() - t0, enKeys: result.enKeys, panels: result.panels, news: result.news, bytes: result.bytes };
+
+      // 可选：把 dist 推到 GitHub Pages 的 gh-pages 分支。失败不影响本机发布结果。
+      let pages = null;
+      const pagesCfg = pagesConfigFromEnv(paths.distDir, paths.dataDir);
+      if (pagesCfg.enabled) {
+        try {
+          pages = deployToPages(pagesCfg, label);
+        } catch (err) {
+          pages = { ok: false, error: String(err && err.message || err).slice(0, 800) };
+        }
+      }
+
+      db.prepare('UPDATE publish_log SET finished_at = ?, status = ?, build_ms = ?, release_dir = ?, pages_status = ?, pages_error = ?, pages_commit = ? WHERE id = ?')
+        .run(nowIso(), 'ok', Date.now() - t0, hadDist ? releaseDir : '',
+          pages ? (pages.ok ? 'ok' : 'failed') : '', pages && pages.error ? pages.error : '',
+          pages && pages.commit ? pages.commit : '', logId);
+      return { ok: true, logId, snapshotId, buildMs: Date.now() - t0, enKeys: result.enKeys, panels: result.panels, news: result.news, bytes: result.bytes, pages };
     } catch (err) {
       db.prepare('UPDATE publish_log SET finished_at = ?, status = ?, error = ?, build_ms = ? WHERE id = ?')
         .run(nowIso(), 'failed', String(err.message || err).slice(0, 2000), Date.now() - t0, logId);
