@@ -34,8 +34,9 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 > `$env:TEMP = "$PWD\.tmp"; npm run build:admin`
 
 - 后台地址：http://127.0.0.1:8787/admin/
-- 初始账号：`admin`，初始密码见 `data/admin-initial.txt`（可用环境变量 `ADMIN_PASSWORD` 覆盖）。
-- 登录后请立刻在「账号管理」里改密码。
+- 初始账号：`admin`。首次启动若未设置 `ADMIN_PASSWORD`，会随机生成密码并写入 `data/admin-initial.txt`（仅本人可读），控制台只提示文件路径，不再打印或内置明文密码。
+- Docker/宝塔部署请务必在 `.env` 设置 `ADMIN_PASSWORD`（不设置时会生成随机密码文件）。
+- 登录后请立刻在「账号管理」里改密码，然后删除 `data/admin-initial.txt`。
 
 日常启动：`node server/src/index.ts`（或 `npm run dev` 自动重启）。
 

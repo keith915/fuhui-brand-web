@@ -1,16 +1,20 @@
-import crypto from 'node:crypto';
 import { buildApp } from './app.ts';
-import { cleanupSessions, ensureAdminUser } from './lib/auth.ts';
-import { ADMIN_PASSWORD, ADMIN_USER, HOST, PORT } from './config.ts';
+import { cleanupSessions } from './lib/auth.ts';
+import { ADMIN_USER, HOST, PORT } from './config.ts';
+import { ensureInitialAdmin } from './lib/admin-bootstrap.ts';
 
 const app = await buildApp();
 const db = app.db;
 
-const initialPassword = ADMIN_PASSWORD || crypto.randomBytes(9).toString('base64url');
-const { created } = ensureAdminUser(db, ADMIN_USER, initialPassword);
-if (created) {
-  app.log.warn('已创建初始管理员 ' + ADMIN_USER + '，初始密码：' + initialPassword + '（请登录后立即修改）');
-  console.log('\n[初始化] 管理员账号 ' + ADMIN_USER + ' / 初始密码 ' + initialPassword + '\n');
+const admin = ensureInitialAdmin(db);
+if (admin.created) {
+  if (admin.file) {
+    app.log.warn('已创建初始管理员 ' + ADMIN_USER + '，随机密码已写入 ' + admin.file + '（登录后立即修改，并删除该文件）');
+    console.log('\n[初始化] 管理员账号 ' + ADMIN_USER + '\n[初始化] 随机密码已写入 ' + admin.file + '，查看后登录并立即修改\n');
+  } else {
+    app.log.warn('已创建初始管理员 ' + ADMIN_USER + '，密码来自 ADMIN_PASSWORD 环境变量（登录后立即修改）');
+    console.log('\n[初始化] 管理员账号 ' + ADMIN_USER + ' / 密码来自 ADMIN_PASSWORD 环境变量\n');
+  }
 }
 
 const timer = setInterval(() => cleanupSessions(db), 30 * 60 * 1000);

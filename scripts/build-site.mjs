@@ -4,10 +4,11 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { openDb } from '../server/src/db/index.ts';
 import { buildSite } from '../server/src/lib/build.ts';
+import { DB_PATH, UPLOAD_DIR } from '../server/src/config.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = process.argv[2] || path.join(ROOT, 'dist');
-const dbPath = path.join(ROOT, 'data', 'app.db');
+const dbPath = DB_PATH;
 
 /* 全新检出（CI / 首次部署）没有 data/app.db：先用 site 源文件播种，避免构建出空页面 */
 if (!fs.existsSync(dbPath)) {
@@ -23,7 +24,7 @@ const result = buildSite(db, {
   templateFile: path.join(ROOT, 'index.html'),
   fragmentDir: path.join(ROOT, 'site', 'fragments'),
   sourceRoot: ROOT,
-  uploadDir: path.join(ROOT, 'data', 'uploads'),
+  uploadDir: UPLOAD_DIR,
   projectRoot: ROOT
 });
 console.log(JSON.stringify({ ...result, missing: result.missing.slice(0, 20) }, null, 2));

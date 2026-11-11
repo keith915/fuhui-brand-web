@@ -3,7 +3,8 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseHTML } from 'linkedom';
 import { openDb, nowIso } from '../server/src/db/index.ts';
-import { ensureAdminUser } from '../server/src/lib/auth.ts';
+import { DB_PATH, ADMIN_USER } from '../server/src/config.ts';
+import { ensureInitialAdmin } from '../server/src/lib/admin-bootstrap.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const force = process.argv.includes('--force');
@@ -197,7 +198,7 @@ if (dryRun) {
   process.exit(0);
 }
 
-const db = openDb(path.join(ROOT, 'data', 'app.db'));
+const db = openDb(DB_PATH);
 const now = nowIso();
 
 if (force) {
@@ -223,9 +224,14 @@ try {
   throw err;
 }
 
-const adminPassword = process.env.ADMIN_PASSWORD || '';
-const ensured = ensureAdminUser(db, process.env.ADMIN_USER || 'admin', adminPassword || 'FuhuiAdmin2026!');
+const ensured = ensureInitialAdmin(db);
 console.log('seed ok:', blocks.length, 'blocks,', metrics.length, 'metrics,', panels.length, 'panels,', news.length, 'news');
 console.log('missing english:', missingEn.length ? missingEn.join(', ') : 'none');
-if (ensured.created) console.log('initial admin: admin / ' + (adminPassword || 'FuhuiAdmin2026!') + ' (请立即修改)');
-console.log('db:', path.join(ROOT, 'data', 'app.db'));
+if (ensured.created) {
+  if (ensured.file) {
+    console.log('initial admin: ' + ADMIN_USER + ' / 随机密码已写入 ' + ensured.file + '（登录后立即修改，并删除该文件）');
+  } else {
+    console.log('initial admin: ' + ADMIN_USER + ' / 使用 ADMIN_PASSWORD 环境变量（登录后立即修改）');
+  }
+}
+console.log('db:', DB_PATH);
