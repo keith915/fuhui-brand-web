@@ -18,15 +18,16 @@ if (!fs.existsSync(dbPath)) {
 
 const db = openDb(dbPath);
 
-fs.rmSync(outDir, { recursive: true, force: true });
 const result = buildSite(db, {
   outDir,
   templateFile: path.join(ROOT, 'index.html'),
   fragmentDir: path.join(ROOT, 'site', 'fragments'),
   sourceRoot: ROOT,
   uploadDir: UPLOAD_DIR,
-  projectRoot: ROOT
+  projectRoot: ROOT,
+  siteOrigin: process.env.FH_SITE_ORIGIN || ''
 });
+
 console.log(JSON.stringify({ ...result, missing: result.missing.slice(0, 20) }, null, 2));
 if (result.missing.length) {
   console.error('缺少资源，构建不完整');

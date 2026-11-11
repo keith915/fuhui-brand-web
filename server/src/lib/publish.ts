@@ -100,7 +100,8 @@ export function createPublisher(db, paths) {
         fragmentDir: paths.fragmentDir,
         sourceRoot: paths.root,
         uploadDir: paths.uploadDir,
-        projectRoot: paths.root
+        projectRoot: paths.root,
+        siteOrigin: paths.siteOrigin || ''
       });
       if (result.missing.length) {
         const err = new Error('构建产物缺少资源：' + result.missing.slice(0, 6).join(', '));

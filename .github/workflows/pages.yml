@@ -29,6 +29,8 @@ jobs:
       - run: node scripts/build-site.mjs
         env:
           ADMIN_PASSWORD: ci-build-only
+          # 换成正式域名后同步修改这里（用于 canonical / og:url / og:image）
+          FH_SITE_ORIGIN: https://keith915.github.io/fuhui-brand-web
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

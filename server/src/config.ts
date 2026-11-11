@@ -19,4 +19,6 @@ export const HOST = env.HOST || '127.0.0.1';
 export const SESSION_TTL_HOURS = Number(env.FH_SESSION_TTL_HOURS || 12);
 export const SECURE_COOKIE = env.FH_SECURE_COOKIE === '1';
 export const ADMIN_PASSWORD = env.ADMIN_PASSWORD || '';
+// 公开站点地址，用于构建时替换 canonical / og:url 中的 example.com 占位
+export const SITE_ORIGIN = (env.FH_SITE_ORIGIN || '').trim();
 export const ADMIN_USER = env.ADMIN_USER || 'admin';

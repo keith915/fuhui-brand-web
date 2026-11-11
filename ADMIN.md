@@ -30,6 +30,8 @@ node server/src/index.ts                  # http://127.0.0.1:8787
 
 已导入过数据时只需 `node server/src/index.ts`。改了后台前端才需要重新 `npm run build:admin`。
 
+- 部署到公开地址后，构建时设置 `FH_SITE_ORIGIN=https://你的域名`（GitHub Pages 用 `https://keith915.github.io/fuhui-brand-web`），会把页面里的 `example.com`（canonical / og:url / og:image）替换成正式地址；不设置则保留占位符。
+
 > Windows 下若 `npm run build:admin` 报 esbuild 临时文件 Access is denied，可把 TEMP 指到项目内再构建：
 > `$env:TEMP = "$PWD\.tmp"; npm run build:admin`
 

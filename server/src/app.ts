@@ -14,7 +14,7 @@ import { contentRoutes } from './routes/content.ts';
 import { newsRoutes } from './routes/news.ts';
 import { mediaRoutes } from './routes/media.ts';
 import { systemRoutes } from './routes/system.ts';
-import { ADMIN_DIST, DATA_DIR, DB_PATH, DIST_DIR, FRAGMENT_DIR, ROOT, TEMPLATE_FILE, UPLOAD_DIR, RELEASES_DIR } from './config.ts';
+import { ADMIN_DIST, DATA_DIR, DB_PATH, DIST_DIR, FRAGMENT_DIR, ROOT, SITE_ORIGIN, TEMPLATE_FILE, UPLOAD_DIR, RELEASES_DIR } from './config.ts';
 
 export async function buildApp(opts = {}) {
   const cfg = {
@@ -26,7 +26,8 @@ export async function buildApp(opts = {}) {
     uploadDir: opts.uploadDir || UPLOAD_DIR,
     releasesDir: opts.releasesDir || RELEASES_DIR,
     templateFile: opts.templateFile || TEMPLATE_FILE,
-    fragmentDir: opts.fragmentDir || FRAGMENT_DIR
+    fragmentDir: opts.fragmentDir || FRAGMENT_DIR,
+    siteOrigin: opts.siteOrigin != null ? opts.siteOrigin : SITE_ORIGIN
   };
 
   const db = opts.db || openDb(cfg.dbPath);

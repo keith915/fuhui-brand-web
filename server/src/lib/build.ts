@@ -62,8 +62,14 @@ export function buildSite(db, opts) {
     fragmentDir,
     sourceRoot,
     uploadDir,
-    projectRoot
+    projectRoot,
+    siteOrigin = ''
   } = opts;
+
+  const origin = String(siteOrigin || '').trim().replace(/\/+$/, '');
+  if (origin && !/^https?:\/\/[^/?#\s]+(\/[^?#\s]*)?$/.test(origin)) {
+    throw new Error('FH_SITE_ORIGIN 格式不合法：' + origin);
+  }
 
   const blocks = db.prepare('SELECT key, zh, en, kind FROM i18n_blocks').all();
   const blockMap = new Map(blocks.map((b) => [b.key, b]));
@@ -196,7 +202,12 @@ export function buildSite(db, opts) {
   // 5) write output
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, 'index.html'), document.toString(), 'utf8');
+  let output = document.toString();
+  if (origin) {
+    output = output.split('https://example.com').join(origin);
+    output = output.replace(/[ \t]*<!-- TODO: 上线前把 EXAMPLE 域名替换为正式域名[^>]*-->\r?\n/, '');
+  }
+  fs.writeFileSync(path.join(outDir, 'index.html'), output, 'utf8');
 
   for (const name of ['styles.css', 'app.js']) {
     fs.copyFileSync(path.join(sourceRoot, name), path.join(outDir, name));
