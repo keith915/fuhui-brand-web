@@ -119,3 +119,33 @@ node -e "const{openDb}=await import('./server/src/db/index.ts');const{hashPasswo
 - [ ] 管理员密码已改，`data/` 已加入备份
 - [ ] 域名备案、HTTPS、Nginx 代理正常
 - [ ] 发布一次并在手机/桌面、中英文下各检查一遍
+
+## 十一、静态托管（可选）
+
+官网产物 `dist/` 是纯静态（20 个文件、约 2.3MB，无任何 API 调用），可以脱离服务器单独托管。管理后台、图片上传、发布回滚仍需 VPS。
+
+### GitHub Pages
+
+仓库内置工作流 `.github/workflows/pages.yml`：推送 master 或手动 Run workflow 时，在 Ubuntu 上 `npm ci --omit=dev` 后运行 `node scripts/build-site.mjs`（自动从 `site/` 播种临时库）产出 `dist`，再发布到 Pages。
+
+启用步骤：
+
+1. 仓库转为公开，或账户升级到 GitHub Pro/Team（私有仓库启用 Pages 需要付费计划）
+2. Settings → Pages → Build and deployment → Source 选 **GitHub Actions**
+3. 推一次 master，在 Actions 页确认 "Deploy site to GitHub Pages" 成功
+
+访问地址为 `https://<owner>.github.io/fuhui-brand-web/`。站点资源全部使用相对路径，部署在子路径下无需改动。
+
+注意：
+
+- Pages 上的内容来自仓库里的 `site/` 源文件，**后台编辑并发布的内容不会同步过去**；要保持一致，需后台发布后再把 `dist` 推到 `gh-pages` 分支，或改用 Cloudflare Workers 并让发布流程直传产物
+- 仓库转公开前，先移除 `scripts/seed-from-site.mjs` 里的兜底管理员密码
+- `*.github.io` 在国内访问不稳定，面向本地客户建议绑定自有域名或直接用 VPS 直出
+- 域名确定后替换 canonical / og:url / og:image 中的 example.com
+
+### Cloudflare Workers / Pages
+
+- Build command 填 `node scripts/build-site.mjs`，不要用 `npm run build`（会白构建 1.1MB 后台，Cloudflare 只发布 `dist`）
+- 输出目录填 `dist`；`wrangler.jsonc` 已声明 `assets.directory: ./dist`
+
+同理，Cloudflare 的 git 构建只读仓库内容，后台改动不会自动同步。
